@@ -19,3 +19,9 @@ def split_message(text):
             count = 0
     lines.append(" ".join(tmp[:count]))
     return lines
+
+def load_token():
+    fd = open("token.key")
+    key = fd.readline()
+    fd.close()
+    return key
