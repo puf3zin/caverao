@@ -1,7 +1,9 @@
-bad.vibes.memes/
-blank_cavera/
-caveroes/
-img/
+# bad.vibes.memes/
+# blank_cavera/
+# caveroes/
+# img/
+
+token.key
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
