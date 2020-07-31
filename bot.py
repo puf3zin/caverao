@@ -1,12 +1,10 @@
 import discord
 import os
 import random, time
-from utils import get_random_string, split_message
-
+from utils import get_random_string, split_message, load_token
 from PIL import Image, ImageDraw, ImageFont
 
-TOKEN = 'NDQ5MDA2NDk3ODA5MDM5MzYw.XxctLg.zSgyQqJgTao4QNa67jtqcSaiUlQ'
-
+TOKEN = ''
 client = discord.Client()
 images = os.listdir('img')
 
@@ -46,7 +44,6 @@ nomes = ['condecorado', 'consagrado', 'cupinxa', 'chefia', 'abençoado',
 sounds = ['epbKsu4mh6c', 'bovKEHWI16A', 'khVOwpjo2Tc', 'g-Su7VIY_0I',
           'vNRFdQPCSAs', '2mm3nJrKcuo']
 admins = ['puf3zin']
-
 banned_list = []
 
 def draw_border (draw, text, font, color, x, y):
@@ -54,6 +51,7 @@ def draw_border (draw, text, font, color, x, y):
     draw.text((x+1, y-1), text, font=font, fill=color)
     draw.text((x-1, y+1), text, font=font, fill=color)
     draw.text((x+1, y+1), text, font=font, fill=color)
+
 
 def create_meme(message, text, ban):
     print (ban)
@@ -139,6 +137,8 @@ async def on_message(message):
             await message.delete()
     except discord.errors.Forbidden:
         print ("forbidden")
+
+
 @client.event
 async def on_ready():
     print('Logged in as')
@@ -146,4 +146,12 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
-client.run(TOKEN)
+
+def main():
+    global TOKEN
+    if TOKEN == '':
+        TOKEN = load_token()
+    client.run(TOKEN)
+
+if __name__ == "__main__":
+    main()
