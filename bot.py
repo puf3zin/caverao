@@ -1,62 +1,40 @@
 import discord
 import os
-import random, time
-from utils import get_random_string, split_message
-
+import random, time, string, math
+import json
+from utils import get_random_string, split_message, draw_border, filter_msg
+from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 
-TOKEN = 'NDQ5MDA2NDk3ODA5MDM5MzYw.XxctLg.zSgyQqJgTao4QNa67jtqcSaiUlQ'
-
 client = discord.Client()
+
+## Loading images
 images = os.listdir('img')
-
-fonts = ['arial.ttf', 'arialbd.ttf', 'arialbi.ttf', 'ariali.ttf', 'ariblk.ttf', 'Awesome Season Personal Use.ttf', 'bahnschrift.ttf',
-         'Bebas-Regular.ttf', 'Bubblegum.ttf', 'built titling bd it.ttf', 'built titling bd.ttf', 'built titling el it.ttf', 'built titling el.ttf',
-         'built titling lt it.ttf', 'built titling lt.ttf', 'built titling rg it.ttf', 'built titling rg.ttf', 'built titling sb it.ttf',
-         'built titling sb.ttf', 'calibri.ttf', 'calibrib.ttf', 'calibrii.ttf', 'calibril.ttf', 'calibrili.ttf', 'calibriz.ttf', 'cambriab.ttf',
-         'cambriai.ttf', 'cambriaz.ttf', 'Candara.ttf', 'Candarab.ttf', 'Candarai.ttf', 'Candaral.ttf', 'Candarali.ttf', 'Candaraz.ttf',
-         'CaviarDreams.ttf', 'CaviarDreams_Bold.ttf', 'CaviarDreams_BoldItalic.ttf', 'CaviarDreams_Italic.ttf', 'comic.ttf', 'comicbd.ttf',
-         'comici.ttf', 'comicz.ttf', 'consola.ttf', 'consolab.ttf', 'consolai.ttf', 'consolaz.ttf', 'constan.ttf', 'constanb.ttf', 'constani.ttf',
-         'constanz.ttf', 'corbel.ttf', 'corbelb.ttf', 'corbeli.ttf', 'corbell.ttf', 'corbelli.ttf', 'corbelz.ttf', 'cour.ttf', 'courbd.ttf', 'courbi.ttf',
-         'couri.ttf', 'Courier Final Draft Bold.ttf', 'Courier Final Draft Italic.ttf', 'Courier Final Draft Regular.ttf', 'ebrima.ttf', 'ebrimabd.ttf',
-         'Excalibur Nouveau.ttf', 'framd.ttf', 'framdit.ttf', 'Gabriola.ttf', 'gadugi.ttf', 'gadugib.ttf', 'georgia.ttf', 'georgiab.ttf', 'georgiai.ttf',
-         'georgiaz.ttf', 'Helvetica-Bold.ttf', 'Helvetica-BoldOblique.ttf', 'Helvetica-Light.ttf', 'Helvetica-LightOblique.ttf', 'Helvetica-Oblique.ttf',
-         'Helvetica.ttf', 'himalaya.ttf', 'holomdl2.ttf', 'impact.ttf', 'Inkfree.ttf', 'javatext.ttf', 'JMH Typewriter.ttf', 'Kiona-Itallic.ttf', 'Kiona-Regular.ttf',
-         'LeelaUIb.ttf', 'LeelawUI.ttf', 'LeelUIsl.ttf', 'lucon.ttf', 'l_10646.ttf', 'malgun.ttf', 'malgunbd.ttf', 'malgunsl.ttf', 'marlett.ttf', 'micross.ttf',
-         'mixolydian titling bd it.ttf', 'mixolydian titling bd.ttf', 'mixolydian titling bk it.ttf', 'mixolydian titling bk.ttf', 'mixolydian titling el it.ttf',
-         'mixolydian titling el.ttf', 'mixolydian titling lt it.ttf', 'mixolydian titling lt.ttf', 'mixolydian titling rg it.ttf', 'mixolydian titling rg.ttf',
-         'mixolydian titling ul it.ttf', 'mixolydian titling ul.ttf', 'mmrtext.ttf', 'mmrtextb.ttf', 'monbaiti.ttf', 'MonospaceTypewriter.ttf', 'msyi.ttf', 'mvboli.ttf',
-         'Nirmala.ttf', 'NirmalaB.ttf', 'NirmalaS.ttf', 'ntailu.ttf', 'ntailub.ttf', 'OptimusPrinceps.ttf', 'OptimusPrincepsSemiBold.ttf', 'pala.ttf', 'palab.ttf',
-         'palabi.ttf', 'palai.ttf', 'phagspa.ttf', 'phagspab.ttf', 'Quiche.ttf', 'Roboto-Black.ttf', 'Roboto-BlackItalic.ttf', 'Roboto-Bold.ttf', 'Roboto-BoldCondensed.ttf',
-         'Roboto-BoldCondensedItalic.ttf', 'Roboto-BoldItalic.ttf', 'Roboto-Condensed.ttf', 'Roboto-CondensedItalic.ttf', 'Roboto-Italic.ttf', 'Roboto-Light.ttf',
-         'Roboto-LightItalic.ttf', 'Roboto-Medium.ttf', 'Roboto-MediumItalic.ttf', 'Roboto-Regular.ttf', 'Roboto-Thin.ttf', 'Roboto-ThinItalic.ttf', 'segmdl2.ttf',
-         'segoepr.ttf', 'segoeprb.ttf', 'segoesc.ttf', 'segoescb.ttf', 'segoeui.ttf', 'segoeuib.ttf', 'segoeuii.ttf', 'segoeuil.ttf', 'segoeuisl.ttf', 'segoeuiz.ttf',
-         'seguibl.ttf', 'seguibli.ttf', 'seguiemj.ttf', 'seguihis.ttf', 'seguili.ttf', 'seguisb.ttf', 'seguisbi.ttf', 'seguisli.ttf', 'seguisym.ttf', 'simsunb.ttf',
-         'SourceCodePro-Black.ttf', 'SourceCodePro-Bold.ttf', 'SourceCodePro-ExtraLight.ttf', 'SourceCodePro-Light.ttf', 'SourceCodePro-Medium.ttf', 'SourceCodePro-Regular.ttf',
-         'SourceCodePro-SemiBold.ttf', 'Square.ttf', 'Swkeys1.ttf', 'sylfaen.ttf', 'symbol.ttf', 'tahoma.ttf', 'tahomabd.ttf', 'taile.ttf', 'taileb.ttf', 'theboldfont.ttf',
-         'times.ttf', 'timesbd.ttf', 'timesbi.ttf', 'timesi.ttf', 'trebuc.ttf', 'trebucbd.ttf', 'trebucbi.ttf', 'trebucit.ttf', 'verdana.ttf', 'verdanab.ttf', 'verdanai.ttf',
-         'verdanaz.ttf', 'Wallman-Bold-free.ttf']
-
 bad_images = os.listdir('bad.vibes.memes')
 caveras = os.listdir('blank_cavera')
-saudacoes = ['fala ai meu', 'bom dia meu', 'qual foi meu', 'iae meu',
-             'coe meu']
-nomes = ['condecorado', 'consagrado', 'cupinxa', 'chefia', 'abençoado',
-         'cacique', 'caverao', 'diabao', 'compatriota']
-sounds = ['epbKsu4mh6c', 'bovKEHWI16A', 'khVOwpjo2Tc', 'g-Su7VIY_0I',
-          'vNRFdQPCSAs', '2mm3nJrKcuo']
-admins = ['puf3zin']
 
-banned_list = []
+## Loading settings
+with open('settings.json') as json_file: 
+    settings = json.load(json_file)
 
-def draw_border (draw, text, font, color, x, y):
-    draw.text((x-1, y-1), text, font=font, fill=color)
-    draw.text((x+1, y-1), text, font=font, fill=color)
-    draw.text((x-1, y+1), text, font=font, fill=color)
-    draw.text((x+1, y+1), text, font=font, fill=color)
+VERSAO_ATUAL = settings["VERSAO_ATUAL"]
+saudacoes = settings["saudacoes"]
+nomes = settings["nomes"]
+bom_dias = settings["bom_dias"]
+shreks = settings["shreks"]
+admins = settings["admins"]
+vacinados = settings["vacinados"]
+banidos = settings["banidos"]
+fonts = settings["fonts"]
 
-def create_meme(message, text, ban):
-    print (ban)
+with open('token.json') as json_file: 
+    TOKEN = json.load(json_file)["TOKEN"]
+
+## Internal lists
+pessoas_com_covid = []
+pessoas_sem_covid = []
+
+def create_meme(text, ban=False):
     if ban:
         text = 'nao introsa vc ta banido parça'
     background = random.choice(caveras)
@@ -64,13 +42,14 @@ def create_meme(message, text, ban):
     draw = ImageDraw.Draw(image)
     width, height = image.size
     font_size = int(width/10)
-    #print(font_name)
     x, y = (width/2), 200
     white = 'rgb(255, 255, 255)'
-    print (text)
+    print ("\nmeme created: %s" % text)
     texts = split_message(text)
+    selected_fonts = []
     for line in texts:
         font_name = random.choice(fonts)
+        selected_fonts.append(font_name)
         font = ImageFont.truetype(font_name, size=font_size + random.randint(-20, 20))
         a, b, c = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
         color = 'rgb(%d, %d, %d)' % (a, b, c)
@@ -80,7 +59,10 @@ def create_meme(message, text, ban):
         y += 60
     name = get_random_string(10) + '.png'
     image.save('caveroes/' + name)
-    return name
+    print("fonts used: %s" % ", ".join(selected_fonts))
+    img_file = open("caveroes/" + name, "rb")
+    image = discord.File(img_file)
+    return image
 
 def get_random_cavera(message):
     apelido = random.choice(nomes)
@@ -90,23 +72,68 @@ def get_random_cavera(message):
     img = random.choice(images)
     return msg, img
 
+def com_covid(pessoa):
+    safes = ['pegou mas ja passou', 'ta safe', 'nao', 'testou negativo parça']
+    corongas = ['ta corongado', 'ta sim', 'aham', 'testou positivo kkkk se fudeu']
+    jacares = ['ce ja ate vacinou, brother', 'ja tomou pikadura kkkkkkk', 'jacare nem tem covid parsa']
+    if pessoa in pessoas_com_covid:
+        msg = 'ja falei q sim parça, o teste não vai mudar do nada'
+    elif pessoa in pessoas_sem_covid:
+        msg = 'nao po, tá safe msm confia'
+    elif pessoa in vacinados:
+        msg = random.choice(jacares)
+    else:
+        flag = random.choice([0, 1])
+        if flag == 1:
+            msg = random.choice(corongas)
+            pessoas_com_covid.append(pessoa)
+        elif flag == 0:
+            msg = random.choice(safes)
+            pessoas_sem_covid.append(pessoa)
+    return msg
+
+def sherek():
+    msg = """⢀⡴⠑⡄⠀⠀⠀⠀⠀⠀⠀⣀⣀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠸⡇⠀⠿⡀⠀⠀⠀⣀⡴⢿⣿⣿⣿⣿⣿⣿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠑⢄⣠⠾⠁⣀⣄⡈⠙⣿⣿⣿⣿⣿⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢀⡀⠁⠀⠀⠈⠙⠛⠂⠈⣿⣿⣿⣿⣿⠿⡿⢿⣆⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⢀⡾⣁⣀⠀⠴⠂⠙⣗⡀⠀⢻⣿⣿⠭⢤⣴⣦⣤⣹⠀⠀⠀⢀⢴⣶⣆
+⠀⠀⢀⣾⣿⣿⣿⣷⣮⣽⣾⣿⣥⣴⣿⣿⡿⢂⠔⢚⡿⢿⣿⣦⣴⣾⠁⠸⣼⡿
+⠀⢀⡞⠁⠙⠻⠿⠟⠉⠀⠛⢹⣿⣿⣿⣿⣿⣌⢤⣼⣿⣾⣿⡟⠉⠀⠀⠀⠀⠀
+⠀⣾⣷⣶⠇⠀⠀⣤⣄⣀⡀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀
+⠀⠉⠈⠉⠀⠀⢦⡈⢻⣿⣿⣿⣶⣶⣶⣶⣤⣽⡹⣿⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠉⠲⣽⡻⢿⣿⣿⣿⣿⣿⣿⣷⣜⣿⣿⣿⡇⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣶⣮⣭⣽⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣀⣀⣈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠛⠻⠿⠿⠿⠿⠛⠉"""
+    return msg
+
 def bad_vibes(message):
     msg = "eu ouvi bad vibes? "
     msg += '{0.author.mention}'.format(message)
     img = random.choice(bad_images)
-    return msg, img
-
+    fp = open("bad.vibes.memes/" + img, "rb")
+    image = discord.File(fp)
+    return msg, image
+        
 
 @client.event
 async def on_message(message):
-    # we do not want the bot to reply to itself
     try:
+        # we do not want the bot to reply to itself
         if message.author == client.user:
             return
         content = message.content
-        print (message.author)
-        print (message.channel)
-        author_name = str(message.author).split('#')[0]
+        filtered_content = filter_msg(content)
+        now_time = datetime.now().time()
+        horario = now_time.strftime("%H:%M:%S")
+        print ("-------------")
+        print ("%s @ %s" % (message.author, message.channel))
+        print ("%s: %s" % (horario, message.content))
+        
+        author_name, author_id = str(message.author).split('#')
         for nome in nomes:
             if nome in content:
                 msg, img = get_random_cavera(message)
@@ -115,35 +142,52 @@ async def on_message(message):
                 await message.channel.send(file=image)
                 await message.channel.send(msg)
                 break
-            
-        if 'bad' in content.lower():
-            msg, img = bad_vibes(message)
-            fp = open("bad.vibes.memes/" + img, "rb")
-            image = discord.File(fp)
-            await message.channel.send(file=image)
-            await message.channel.send(msg)
-
-        if 'com covid' in content.lower():
-            msg = random.choice(['ta corongado', 'ta sim', 'aham', 'pegou mas ja passou', 'ta safe'])
-            await message.channel.send(msg)
-
+        
         if content.startswith('.cria '):
-            print(message.author)
             ban = False
-            if author_name in banned_list:
+            if author_name in banidos:
                 ban = True
-            img = create_meme(message, content[6:], ban)
-            fp = open("caveroes/" + img, "rb")
-            image = discord.File(fp)
+            image = create_meme(content[6:], ban)
             await message.channel.send(file=image)
             await message.delete()
+
+        elif 'bad' in filtered_content:
+            msg, image = bad_vibes(message)
+            await message.channel.send(file=image)
+            await message.channel.send(msg)
+
+        elif 'com covid' in filtered_content:
+            msg = com_covid(author_name)
+            await message.channel.send(msg)
+
+        else:
+            for shrk in shreks:
+                if shrk in content:
+                    msg = sherek()
+                    await message.channel.send(msg)
+        
     except discord.errors.Forbidden:
         print ("forbidden")
+
+
 @client.event
 async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
+    print('version %s' % VERSAO_ATUAL)
 
-client.run(TOKEN)
+    # channels_for_bom_dia = []
+    # for guild in client.guilds:
+    #     for channel in guild.text_channels:
+    #         if channel.name in bom_dias:
+    #             channels_for_bom_dia.append(channel)
+
+    # bom_dia_meme = create_meme("bom dia queridos, tamo online")
+    # for channel in channels_for_bom_dia:
+    #     await channel.send(file=bom_dia_meme)
+
+
+if __name__ == "__main__":
+    client.run(TOKEN)

@@ -3,7 +3,20 @@
 # caveroes/
 # img/
 
+caveroes/
 token.key
+.vscode
+
+token.json
+desktop.ini
+
+# Media
+*.webm
+*.jpeg
+*.jpg
+*.png
+*.m4a
+*.exe
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -134,3 +147,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# virtualenv
+bin/
+include/
